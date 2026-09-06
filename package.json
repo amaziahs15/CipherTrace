@@ -1,0 +1,15 @@
+{
+  "name": "ciphertrace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CipherTrace - Cyber Fraud Tracking and Hotspot Prediction Platform",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan.bold,magenta.bold\" --prefix \"[{name}]\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd SIH1/SIH/backend && (if exist venv\\Scripts\\python.exe (venv\\Scripts\\python.exe app.py) else if exist .venv\\Scripts\\python.exe (.venv\\Scripts\\python.exe app.py) else (py -3.13 app.py 2>nul || py app.py 2>nul || python app.py || python3 app.py))",
+    "dev:frontend": "npm --prefix frontend/cyberguard-insights-main run dev",
+    "build": "npm --prefix frontend/cyberguard-insights-main run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "model_type": "XGBoost Classifier (8 features)",
+  "test_samples": 2000,
+  "metrics": {
+    "accuracy": 0.565,
+    "precision": 0.5643,
+    "recall": 0.565
+  },
+  "feature_importances": [
+    {
+      "key": "dist_from_center",
+      "name": "Distance from Center",
+      "importance": 0.2492
+    },
+    {
+      "key": "recent_complaints_same_ip_24h",
+      "name": "IP Incident Velocity",
+      "importance": 0.144
+    },
+    {
+      "key": "fraud_type_code",
+      "name": "Fraud Type",
+      "importance": 0.1259
+    },
+    {
+      "key": "bank_code",
+      "name": "Bank Code",
+      "importance": 0.1194
+    },
+    {
+      "key": "fraud_amount",
+      "name": "Fraud Amount",
+      "importance": 0.1024
+    },
+    {
+      "key": "suspect_account_age_days",
+      "name": "Account Age",
+      "importance": 0.0935
+    },
+    {
+      "key": "hour_of_day",
+      "name": "Hour of Day",
+      "importance": 0.0843
+    },
+    {
+      "key": "day_of_week",
+      "name": "Day of Week",
+      "importance": 0.0813
+    }
+  ],
+  "label_note": "Metrics computed on held-out test data during model training."
+}

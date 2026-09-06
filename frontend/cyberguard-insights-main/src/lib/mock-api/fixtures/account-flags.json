@@ -1,0 +1,202 @@
+[
+  {
+    "account": "MULE-SBI-984210349281",
+    "bank": "SBI",
+    "ifsc": "SBIN0001234",
+    "prior_fraud_count": 7,
+    "flagged_at": ["2024-03-10", "2024-05-22", "2024-07-01", "2024-08-15", "2024-09-01", "2024-09-04", "2026-09-06"],
+    "shared_phone_accounts": ["MULE-PNB-778123456789", "MULE-BOB-123987654321"],
+    "shared_kyc_accounts": ["MULE-HDFC-Layer2-392817462910"],
+    "mule_confidence": 0.97
+  },
+  {
+    "account": "MULE-HDFC-491209384721",
+    "bank": "HDFC",
+    "ifsc": "HDFC0002345",
+    "prior_fraud_count": 9,
+    "flagged_at": ["2024-01-15", "2024-02-28", "2024-04-10", "2024-06-05", "2024-07-20", "2024-08-30", "2024-09-03", "2024-09-05", "2026-09-06"],
+    "shared_phone_accounts": ["MULE-AXIS-Layer2-554433221100"],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.99
+  },
+  {
+    "account": "MULE-ICICI-334512098432",
+    "bank": "ICICI",
+    "ifsc": "ICIC0003456",
+    "prior_fraud_count": 3,
+    "flagged_at": ["2024-06-10", "2024-08-01", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": ["MULE-PNB-889900112233"],
+    "mule_confidence": 0.78
+  },
+  {
+    "account": "MULE-AXIS-556712309843",
+    "bank": "Axis",
+    "ifsc": "UTIB0004567",
+    "prior_fraud_count": 1,
+    "flagged_at": ["2026-09-05"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.42
+  },
+  {
+    "account": "MULE-PNB-778123456789",
+    "bank": "PNB",
+    "ifsc": "PUNB0005678",
+    "prior_fraud_count": 11,
+    "flagged_at": ["2023-12-01", "2024-01-15", "2024-03-20", "2024-04-10", "2024-05-05", "2024-06-22", "2024-07-30", "2024-08-14", "2024-09-01", "2024-09-04", "2026-09-06"],
+    "shared_phone_accounts": ["MULE-SBI-984210349281"],
+    "shared_kyc_accounts": ["MULE-SBI-Layer2-667788990011"],
+    "mule_confidence": 0.99
+  },
+  {
+    "account": "MULE-BOB-123987654321",
+    "bank": "Bank of Baroda",
+    "ifsc": "BARB0006789",
+    "prior_fraud_count": 4,
+    "flagged_at": ["2024-05-10", "2024-07-15", "2024-09-02", "2026-09-05"],
+    "shared_phone_accounts": ["MULE-SBI-984210349281"],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.85
+  },
+  {
+    "account": "MULE-HDFC-Layer2-392817462910",
+    "bank": "HDFC",
+    "ifsc": "HDFC0009001",
+    "prior_fraud_count": 6,
+    "flagged_at": ["2024-04-01", "2024-05-20", "2024-07-10", "2024-08-25", "2024-09-03", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": ["MULE-SBI-984210349281"],
+    "mule_confidence": 0.93
+  },
+  {
+    "account": "MULE-ICICI-Layer3-112233445566",
+    "bank": "ICICI",
+    "ifsc": "ICIC0009002",
+    "prior_fraud_count": 5,
+    "flagged_at": ["2024-03-15", "2024-06-01", "2024-07-22", "2024-09-01", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.88
+  },
+  {
+    "account": "MULE-AXIS-Layer2-554433221100",
+    "bank": "Axis",
+    "ifsc": "UTIB0009003",
+    "prior_fraud_count": 8,
+    "flagged_at": ["2024-02-10", "2024-03-25", "2024-05-01", "2024-06-15", "2024-07-28", "2024-08-30", "2024-09-04", "2026-09-06"],
+    "shared_phone_accounts": ["MULE-HDFC-491209384721"],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.96
+  },
+  {
+    "account": "MULE-SBI-Layer2-667788990011",
+    "bank": "SBI",
+    "ifsc": "SBIN0009004",
+    "prior_fraud_count": 5,
+    "flagged_at": ["2024-04-10", "2024-06-20", "2024-08-01", "2024-09-03", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": ["MULE-PNB-778123456789"],
+    "mule_confidence": 0.91
+  },
+  {
+    "account": "MULE-BOB-Layer3-998877665544",
+    "bank": "Bank of Baroda",
+    "ifsc": "BARB0009005",
+    "prior_fraud_count": 3,
+    "flagged_at": ["2024-06-15", "2024-08-10", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.74
+  },
+  {
+    "account": "MULE-HDFC-667812309001",
+    "bank": "HDFC",
+    "ifsc": "HDFC0007890",
+    "prior_fraud_count": 0,
+    "flagged_at": [],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.21
+  },
+  {
+    "account": "MULE-PNB-889900112233",
+    "bank": "PNB",
+    "ifsc": "PUNB0008901",
+    "prior_fraud_count": 5,
+    "flagged_at": ["2024-05-01", "2024-07-10", "2024-08-20", "2024-09-02", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": ["MULE-ICICI-334512098432"],
+    "mule_confidence": 0.89
+  },
+  {
+    "account": "MULE-ICICI-999888777666",
+    "bank": "ICICI",
+    "ifsc": "ICIC0009100",
+    "prior_fraud_count": 2,
+    "flagged_at": ["2024-07-05", "2024-09-01"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.55
+  },
+  {
+    "account": "MULE-SBI-111222333444",
+    "bank": "SBI",
+    "ifsc": "SBIN0009200",
+    "prior_fraud_count": 4,
+    "flagged_at": ["2024-03-01", "2024-05-15", "2024-08-05", "2026-09-05"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.82
+  },
+  {
+    "account": "MULE-AXIS-222333444555",
+    "bank": "Axis",
+    "ifsc": "UTIB0009300",
+    "prior_fraud_count": 6,
+    "flagged_at": ["2024-02-20", "2024-04-15", "2024-06-01", "2024-07-20", "2024-09-03", "2026-09-06"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.92
+  },
+  {
+    "account": "MULE-HDFC-333444555666",
+    "bank": "HDFC",
+    "ifsc": "HDFC0009400",
+    "prior_fraud_count": 1,
+    "flagged_at": ["2026-09-04"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.34
+  },
+  {
+    "account": "MULE-PNB-444555666777",
+    "bank": "PNB",
+    "ifsc": "PUNB0009500",
+    "prior_fraud_count": 7,
+    "flagged_at": ["2024-01-10", "2024-03-15", "2024-05-20", "2024-07-01", "2024-08-15", "2024-09-02", "2026-09-05"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.95
+  },
+  {
+    "account": "MULE-BOB-555666777888",
+    "bank": "Bank of Baroda",
+    "ifsc": "BARB0009600",
+    "prior_fraud_count": 3,
+    "flagged_at": ["2024-06-05", "2024-08-20", "2026-09-05"],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.71
+  },
+  {
+    "account": "MULE-ICICI-666777888999",
+    "bank": "ICICI",
+    "ifsc": "ICIC0009700",
+    "prior_fraud_count": 0,
+    "flagged_at": [],
+    "shared_phone_accounts": [],
+    "shared_kyc_accounts": [],
+    "mule_confidence": 0.15
+  }
+]

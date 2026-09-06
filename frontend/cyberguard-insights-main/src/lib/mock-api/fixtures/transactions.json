@@ -1,0 +1,160 @@
+{
+  "UTR-SBI-2024-8901-A": [
+    {
+      "txn_id": "TXN-001-HOP0",
+      "utr": "UTR-SBI-2024-8901-A",
+      "from_account": "VICTIM-SBI-100000000001",
+      "from_bank": "SBI",
+      "to_account": "MULE-SBI-984210349281",
+      "to_bank": "SBI",
+      "to_ifsc": "SBIN0001234",
+      "amount": 145000,
+      "timestamp": "2026-09-06T08:15:00+05:30",
+      "hop_index": 0,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    },
+    {
+      "txn_id": "TXN-001-HOP1",
+      "utr": "UTR-SBI-2024-8901-A",
+      "from_account": "MULE-SBI-984210349281",
+      "from_bank": "SBI",
+      "to_account": "MULE-HDFC-Layer2-392817462910",
+      "to_bank": "HDFC",
+      "to_ifsc": "HDFC0009001",
+      "amount": 144500,
+      "timestamp": "2026-09-06T08:22:00+05:30",
+      "hop_index": 1,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    },
+    {
+      "txn_id": "TXN-001-HOP2",
+      "utr": "UTR-SBI-2024-8901-A",
+      "from_account": "MULE-HDFC-Layer2-392817462910",
+      "from_bank": "HDFC",
+      "to_account": "MULE-ICICI-Layer3-112233445566",
+      "to_bank": "ICICI",
+      "to_ifsc": "ICIC0009002",
+      "amount": 144000,
+      "timestamp": "2026-09-06T08:31:00+05:30",
+      "hop_index": 2,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    }
+  ],
+  "UTR-HDFC-2024-8899-B": [
+    {
+      "txn_id": "TXN-002-HOP0",
+      "utr": "UTR-HDFC-2024-8899-B",
+      "from_account": "VICTIM-HDFC-200000000002",
+      "from_bank": "HDFC",
+      "to_account": "MULE-HDFC-491209384721",
+      "to_bank": "HDFC",
+      "to_ifsc": "HDFC0002345",
+      "amount": 220000,
+      "timestamp": "2026-09-06T07:40:00+05:30",
+      "hop_index": 0,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "FROZEN",
+      "atm_id": null
+    },
+    {
+      "txn_id": "TXN-002-HOP1",
+      "utr": "UTR-HDFC-2024-8899-B",
+      "from_account": "MULE-HDFC-491209384721",
+      "from_bank": "HDFC",
+      "to_account": "MULE-AXIS-Layer2-554433221100",
+      "to_bank": "Axis",
+      "to_ifsc": "UTIB0009003",
+      "amount": 218000,
+      "timestamp": "2026-09-06T07:52:00+05:30",
+      "hop_index": 1,
+      "withdrawal_status": "WITHDRAWN_ATM",
+      "freeze_status": "FROZEN",
+      "atm_id": "ATM-MUM-003"
+    }
+  ],
+  "UTR-PNB-2024-8885-E": [
+    {
+      "txn_id": "TXN-003-HOP0",
+      "utr": "UTR-PNB-2024-8885-E",
+      "from_account": "VICTIM-PNB-300000000005",
+      "from_bank": "PNB",
+      "to_account": "MULE-PNB-778123456789",
+      "to_bank": "PNB",
+      "to_ifsc": "PUNB0005678",
+      "amount": 195000,
+      "timestamp": "2026-09-06T09:05:00+05:30",
+      "hop_index": 0,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    },
+    {
+      "txn_id": "TXN-003-HOP1",
+      "utr": "UTR-PNB-2024-8885-E",
+      "from_account": "MULE-PNB-778123456789",
+      "from_bank": "PNB",
+      "to_account": "MULE-SBI-Layer2-667788990011",
+      "to_bank": "SBI",
+      "to_ifsc": "SBIN0009004",
+      "amount": 193000,
+      "timestamp": "2026-09-06T09:18:00+05:30",
+      "hop_index": 1,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    },
+    {
+      "txn_id": "TXN-003-HOP2",
+      "utr": "UTR-PNB-2024-8885-E",
+      "from_account": "MULE-SBI-Layer2-667788990011",
+      "from_bank": "SBI",
+      "to_account": "MULE-BOB-Layer3-998877665544",
+      "to_bank": "Bank of Baroda",
+      "to_ifsc": "BARB0009005",
+      "amount": 192500,
+      "timestamp": "2026-09-06T09:29:00+05:30",
+      "hop_index": 2,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    }
+  ],
+  "UTR-SBI-2024-8875-G": [
+    {
+      "txn_id": "TXN-004-HOP0",
+      "utr": "UTR-SBI-2024-8875-G",
+      "from_account": "VICTIM-SBI-400000000007",
+      "from_bank": "SBI",
+      "to_account": "MULE-SBI-984210349281",
+      "to_bank": "SBI",
+      "to_ifsc": "SBIN0001234",
+      "amount": 310000,
+      "timestamp": "2026-09-06T10:00:00+05:30",
+      "hop_index": 0,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    },
+    {
+      "txn_id": "TXN-004-HOP1",
+      "utr": "UTR-SBI-2024-8875-G",
+      "from_account": "MULE-SBI-984210349281",
+      "from_bank": "SBI",
+      "to_account": "MULE-HDFC-Layer2-392817462910",
+      "to_bank": "HDFC",
+      "to_ifsc": "HDFC0009001",
+      "amount": 309000,
+      "timestamp": "2026-09-06T10:11:00+05:30",
+      "hop_index": 1,
+      "withdrawal_status": "NOT_WITHDRAWN",
+      "freeze_status": "NOT_REQUESTED",
+      "atm_id": null
+    }
+  ]
+}

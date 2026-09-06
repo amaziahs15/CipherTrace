@@ -1,0 +1,10 @@
+[build]
+  base = "frontend/cyberguard-insights-main"
+  command = "npm run build"
+  publish = "dist/client"
+
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "development"
