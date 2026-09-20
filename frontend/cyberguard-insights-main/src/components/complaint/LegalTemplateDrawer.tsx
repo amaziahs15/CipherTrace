@@ -97,7 +97,7 @@ export default function LegalTemplateDrawer({
   const handleLogAudit = () => {
     appendAudit({
       timestamp: new Date().toISOString(),
-      actor: "Investigating Officer (Demo IO-104)",
+      actor: "Investigating Officer (IO-104)",
       action: "LEGAL_DRAFT_GENERATED",
       complaint_id: complaint.complaint_id,
       detail: `Generated draft ${docType} for complaint ${complaint.complaint_id}. Subject to manual IO review.`,
@@ -169,12 +169,17 @@ export default function LegalTemplateDrawer({
           </button>
         </div>
 
-        {/* Validation Warning & Notice Banner */}
-        <div className="p-4 bg-amber-500/10 border-b border-amber-500/20 text-xs text-amber-300 flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-          <div>
-            <span className="font-bold">MANDATORY LEGAL COMPLIANCE NOTICE:</span>
-            <p className="mt-0.5 text-slate-300">
+        {/* Prominent Mandatory Compliance & Officer Review Warning Strip */}
+        <div className="p-4 bg-amber-500/15 border-b border-amber-500/30 text-xs text-amber-200 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-amber-400" />
+          <div className="space-y-1">
+            <div className="font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+              <span>⚠ MANDATORY STATUTORY DRAFT COMPLIANCE NOTICE</span>
+            </div>
+            <p className="text-slate-100 font-semibold text-xs leading-snug">
+              DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
+            </p>
+            <p className="text-slate-400 text-[11px] leading-relaxed">
               This document is a machine-assembled draft based on standard CrPC / BNSS provisions. It must be verified, signed, and stamped by the designated Investigating Officer prior to statutory transmission to banks or surveillance teams.
             </p>
             {doc.validation_errors.length > 0 && (
@@ -192,11 +197,12 @@ export default function LegalTemplateDrawer({
 
         {/* Content Preview Container */}
         <div className="flex-1 p-4 overflow-y-auto bg-slate-950 font-mono text-xs relative">
-          {/* Subtle Watermark */}
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-5 select-none text-6xl font-black rotate-[-25deg] text-slate-400">
-            DRAFT NOT FOR DISPATCH
+          {/* Prominent Watermark */}
+          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center opacity-10 select-none text-center rotate-[-20deg] text-slate-300 px-6">
+            <span className="text-5xl font-black tracking-widest uppercase">DRAFT · NOT FOR DISPATCH</span>
+            <span className="text-xs font-mono font-bold mt-2 text-amber-400">REQUIRES OFFICER REVIEW &amp; SIGNATURE</span>
           </div>
-          <pre className="whitespace-pre-wrap text-slate-300 leading-relaxed font-mono">
+          <pre className="whitespace-pre-wrap text-slate-300 leading-relaxed font-mono relative z-10">
             {doc.content}
           </pre>
         </div>

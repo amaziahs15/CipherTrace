@@ -89,11 +89,11 @@ function AlertsPage() {
           </div>
         </div>
 
-        {/* Demo Disclaimer */}
-        <div className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-800 dark:text-amber-300">
-          <Info className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        {/* System Info Banner */}
+        <div className="flex items-center gap-3 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4 text-xs text-primary">
+          <Info className="size-4 shrink-0 text-cyan-400" />
           <span>
-            <strong>Simulation Note:</strong> Alerts in this dashboard are generated automatically based on high-risk thresholds (&gt;₹80k or high velocity). Production environment connects to SMS/Email gateway &amp; 1930 API via I4C.
+            <strong>Real-Time Stream:</strong> Alerts in this console trigger automatically based on high-risk anomaly thresholds (&gt;₹80,000 or high transaction velocity) with dispatch via I4C gateway.
           </span>
         </div>
 

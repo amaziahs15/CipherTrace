@@ -43,6 +43,8 @@ export default function LinkAnalysisGraph({
 }: LinkAnalysisGraphProps) {
   const [complaints, setComplaints] = useState<ComplaintEntity[]>(getStoredComplaints);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [selectedRing, setSelectedRing] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [zoom, setZoom] = useState(1);
@@ -63,10 +65,12 @@ export default function LinkAnalysisGraph({
     return buildNetworkGraph(complaints, activeHighlightId);
   }, [complaints, activeHighlightId]);
 
-  // Compute 2D Positions using radial-layered topology layout for deterministic stability
-  const layoutNodes = useMemo(() => {
-    const width = 860;
-    const height = 520;
+  // Compute 2D Positions using radial-layered topology layout with node-count scaled dimensions
+  const { layoutNodes, viewBoxWidth, viewBoxHeight } = useMemo(() => {
+    const totalCount = graphData.nodes.length;
+    const scaleFactor = Math.max(1, Math.sqrt(Math.max(1, totalCount) / 10));
+    const width = Math.round(920 * scaleFactor);
+    const height = Math.round(580 * scaleFactor);
     const cx = width / 2;
     const cy = height / 2;
 
@@ -78,10 +82,10 @@ export default function LinkAnalysisGraph({
 
     const posMap = new Map<string, { x: number; y: number }>();
 
-    // 1. Center Ring: Suspect Accounts (Core Mule Hubs)
+    // 1. Center Ring: Suspect Accounts (stagger alternate radii so labels don't collide)
     accountNodes.forEach((node, i) => {
       const angle = (i / Math.max(1, accountNodes.length)) * 2 * Math.PI - Math.PI / 2;
-      const radius = 95;
+      const radius = Math.round((115 + (i % 2 === 0 ? 0 : 30)) * scaleFactor);
       posMap.set(node.id, {
         x: cx + radius * Math.cos(angle),
         y: cy + radius * Math.sin(angle),
@@ -91,7 +95,7 @@ export default function LinkAnalysisGraph({
     // 2. Middle Ring: Suspect Phones
     phoneNodes.forEach((node, i) => {
       const angle = (i / Math.max(1, phoneNodes.length)) * 2 * Math.PI;
-      const radius = 175;
+      const radius = Math.round((195 + (i % 2 === 0 ? 0 : 30)) * scaleFactor);
       posMap.set(node.id, {
         x: cx + radius * Math.cos(angle),
         y: cy + radius * Math.sin(angle),
@@ -101,33 +105,34 @@ export default function LinkAnalysisGraph({
     // 3. Outer Ring: Complaints
     complaintsNodes.forEach((node, i) => {
       const angle = (i / Math.max(1, complaintsNodes.length)) * 2 * Math.PI - Math.PI / 4;
-      const radius = 240;
+      const radius = Math.round((285 + (i % 2 === 0 ? 0 : 35)) * scaleFactor);
       posMap.set(node.id, {
         x: cx + radius * Math.cos(angle),
         y: cy + radius * Math.sin(angle),
       });
     });
 
-    // 4. Periphery Top/Bottom: Banks and Hotspots
+    // 4. Periphery Top: Hotspots
     hotspotNodes.forEach((node, i) => {
       const angle = (i / Math.max(1, hotspotNodes.length)) * Math.PI + Math.PI / 6;
-      const radius = 220;
+      const radius = Math.round((265 + (i % 2 === 0 ? 0 : 25)) * scaleFactor);
       posMap.set(node.id, {
         x: cx + radius * Math.cos(angle),
         y: cy + radius * Math.sin(angle) * 0.9,
       });
     });
 
+    // 5. Periphery Bottom: Banks
     bankNodes.forEach((node, i) => {
       const angle = (i / Math.max(1, bankNodes.length)) * Math.PI - Math.PI / 6;
-      const radius = 210;
+      const radius = Math.round((255 + (i % 2 === 0 ? 0 : 25)) * scaleFactor);
       posMap.set(node.id, {
         x: cx + radius * Math.cos(angle),
         y: cy - radius * Math.sin(angle) * 0.9,
       });
     });
 
-    return graphData.nodes.map((node) => {
+    const positioned = graphData.nodes.map((node) => {
       const p = posMap.get(node.id) || { x: cx, y: cy };
       return {
         ...node,
@@ -135,7 +140,112 @@ export default function LinkAnalysisGraph({
         y: p.y,
       };
     });
+
+    return { layoutNodes: positioned, viewBoxWidth: width, viewBoxHeight: height };
   }, [graphData]);
+
+  // Set of nodes & links belonging to the currently selected syndicate ring
+  const ringEntitySet = useMemo(() => {
+    if (!selectedRing) return null;
+    const nodeIds = new Set<string>();
+
+    complaints.forEach((c) => {
+      if (c.syndicateTag === selectedRing) {
+        nodeIds.add(`node_cmp_${c.id}`);
+        if (c.suspectAccountId) nodeIds.add(`node_acc_${c.suspectAccountId}`);
+        if (c.suspectPhone) nodeIds.add(`node_phone_${c.suspectPhone}`);
+        if (c.predictedHotspot) {
+          const cityOrHotspot = c.hotspotCity || c.predictedHotspot;
+          nodeIds.add(`node_hotspot_${cityOrHotspot}`);
+        }
+        if (c.bank) nodeIds.add(`node_bank_${c.bank}`);
+      }
+    });
+
+    const linkIds = new Set<string>();
+    graphData.links.forEach((l) => {
+      if (nodeIds.has(l.source) && nodeIds.has(l.target)) {
+        linkIds.add(l.id);
+      }
+    });
+
+    return { nodeIds, linkIds };
+  }, [selectedRing, complaints, graphData.links]);
+
+  // Active focus entity for focus mode (hovered or clicked)
+  const activeFocusId = hoveredNode?.id || selectedNode?.id || null;
+
+  const focusNeighbors = useMemo(() => {
+    if (!activeFocusId) return null;
+    const directLinks = new Set<string>();
+    const neighborNodes = new Set<string>([activeFocusId]);
+
+    graphData.links.forEach((l) => {
+      if (l.source === activeFocusId || l.target === activeFocusId) {
+        directLinks.add(l.id);
+        neighborNodes.add(l.source);
+        neighborNodes.add(l.target);
+      }
+    });
+
+    return { directLinks, neighborNodes };
+  }, [activeFocusId, graphData.links]);
+
+  const getNodeOpacity = (nodeId: string) => {
+    if (ringEntitySet && !ringEntitySet.nodeIds.has(nodeId)) {
+      return 0.08;
+    }
+    if (focusNeighbors) {
+      return focusNeighbors.neighborNodes.has(nodeId) ? 1 : 0.08;
+    }
+    return 1;
+  };
+
+  const getLinkOpacity = (link: GraphLink) => {
+    if (ringEntitySet && !ringEntitySet.linkIds.has(link.id)) {
+      return 0.08;
+    }
+    if (focusNeighbors) {
+      return focusNeighbors.directLinks.has(link.id) ? 1 : 0.08;
+    }
+    return link.isHighlighted ? 0.9 : 0.15;
+  };
+
+  const getLinkStyle = (rel: string, isFocused: boolean) => {
+    switch (rel) {
+      case "TRANSFERRED_TO":
+        return {
+          stroke: isFocused ? "#f59e0b" : "#d97706",
+          strokeDasharray: undefined,
+          strokeWidth: isFocused ? 2.5 : 1.6,
+        };
+      case "CALLED":
+      case "CALLED_FROM":
+        return {
+          stroke: isFocused ? "#06b6d4" : "#0891b2",
+          strokeDasharray: "4, 3",
+          strokeWidth: isFocused ? 2.2 : 1.4,
+        };
+      case "REGISTERED_BANK":
+        return {
+          stroke: isFocused ? "#3b82f6" : "#2563eb",
+          strokeDasharray: "8, 4",
+          strokeWidth: isFocused ? 2.2 : 1.4,
+        };
+      case "WITHDRAWAL_AT":
+        return {
+          stroke: isFocused ? "#a855f7" : "#9333ea",
+          strokeDasharray: "6, 2, 2, 2",
+          strokeWidth: isFocused ? 2.2 : 1.4,
+        };
+      default:
+        return {
+          stroke: isFocused ? "#cbd5e1" : "#64748b",
+          strokeDasharray: undefined,
+          strokeWidth: isFocused ? 2 : 1.2,
+        };
+    }
+  };
 
   // Map for fast coordinate lookup
   const nodeLookup = useMemo(() => {
@@ -308,7 +418,7 @@ export default function LinkAnalysisGraph({
         {/* SVG Network Graph */}
         <svg
           className="h-full w-full"
-          viewBox="0 0 860 520"
+          viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
             transformOrigin: "center center",
@@ -341,31 +451,34 @@ export default function LinkAnalysisGraph({
               if (!src || !tgt) return null;
               if (!visibleNodeIds.has(src.id) || !visibleNodeIds.has(tgt.id)) return null;
 
-              const isHighlighted = link.isHighlighted || selectedNode?.id === src.id || selectedNode?.id === tgt.id;
+              const isDirectFocus = focusNeighbors ? focusNeighbors.directLinks.has(link.id) : false;
+              const isHighlighted = link.isHighlighted || activeFocusId === src.id || activeFocusId === tgt.id || isDirectFocus;
+              const linkOpacity = getLinkOpacity(link);
+              const style = getLinkStyle(link.relationship, isHighlighted);
 
               return (
-                <g key={link.id} className="transition-all duration-300">
+                <g key={link.id} className="transition-all duration-300" style={{ opacity: linkOpacity }}>
                   <line
                     x1={src.x}
                     y1={src.y}
                     x2={tgt.x}
                     y2={tgt.y}
-                    stroke={isHighlighted ? "rgba(245, 158, 11, 0.9)" : "rgba(100, 116, 139, 0.35)"}
-                    strokeWidth={isHighlighted ? 2.5 : 1.2}
-                    strokeDasharray={link.relationship === "CALLED_FROM" ? "4,3" : undefined}
+                    stroke={style.stroke}
+                    strokeWidth={style.strokeWidth}
+                    strokeDasharray={style.strokeDasharray}
                     filter={isHighlighted ? "url(#glow)" : undefined}
                   />
-                  {/* Small Relationship Label on Hover/Highlight */}
+                  {/* Relationship Label on Hover/Highlight */}
                   {isHighlighted && (
                     <text
                       x={(src.x! + tgt.x!) / 2}
                       y={(src.y! + tgt.y!) / 2 - 4}
-                      fill="#f59e0b"
+                      fill={style.stroke}
                       fontSize="8"
                       fontFamily="monospace"
                       fontWeight="bold"
                       textAnchor="middle"
-                      className="bg-black/80 px-1"
+                      className="bg-black/80 px-1 select-none pointer-events-none"
                     >
                       {link.relationship}
                     </text>
@@ -380,12 +493,22 @@ export default function LinkAnalysisGraph({
             {visibleNodes.map((node) => {
               const colors = getNodeColor(node.type, node.isFlaggedMatch, node.isNew);
               const isSelected = selectedNode?.id === node.id;
+              const isHovered = hoveredNode?.id === node.id;
               const isMatch = node.isFlaggedMatch;
+              const nodeOpacity = getNodeOpacity(node.id);
+
+              const isComplaint = node.type === "complaint";
+              const isDirectlyFocused = activeFocusId === node.id;
+              const isNeighborInFocus = focusNeighbors?.neighborNodes.has(node.id) ?? false;
+              const showLabel = isComplaint || isDirectlyFocused || isNeighborInFocus;
 
               return (
                 <g
                   key={node.id}
                   transform={`translate(${node.x}, ${node.y})`}
+                  style={{ opacity: nodeOpacity }}
+                  onMouseEnter={() => setHoveredNode(node)}
+                  onMouseLeave={() => setHoveredNode(null)}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedNode(node);
@@ -393,10 +516,10 @@ export default function LinkAnalysisGraph({
                       onSelectComplaint(node.complaintRefId);
                     }
                   }}
-                  className="cursor-pointer group transition-transform duration-200 hover:scale-110"
+                  className="cursor-pointer group transition-all duration-200 hover:scale-110"
                 >
                   {/* Pulsing Outer Radar Ring for New Entries or Flagged Matches */}
-                  {(node.isNew || isMatch || isSelected) && (
+                  {(node.isNew || isMatch || isSelected || isHovered) && (
                     <circle
                       r={node.type === "complaint" ? 22 : 18}
                       fill="none"
@@ -411,8 +534,8 @@ export default function LinkAnalysisGraph({
                   <circle
                     r={node.type === "complaint" ? 16 : 13}
                     className={`${colors.bg} ${colors.stroke} transition-all`}
-                    strokeWidth={isSelected ? "3" : "1.5"}
-                    filter={isSelected || node.isNew ? "url(#glow)" : undefined}
+                    strokeWidth={isSelected || isHovered ? "3" : "1.5"}
+                    filter={isSelected || isHovered || node.isNew ? "url(#glow)" : undefined}
                   />
 
                   {/* Type Icon Glyph inside SVG */}
@@ -422,22 +545,25 @@ export default function LinkAnalysisGraph({
                     fill="#ffffff"
                     fontSize="10"
                     fontWeight="bold"
+                    className="pointer-events-none select-none"
                   >
                     {node.type === "complaint" ? "🚨" : node.type === "account" ? "💳" : node.type === "phone" ? "📱" : node.type === "hotspot" ? "📍" : "🏦"}
                   </text>
 
-                  {/* Primary Node Label */}
-                  <text
-                    y={node.type === "complaint" ? 24 : 20}
-                    textAnchor="middle"
-                    fill="#e2e8f0"
-                    fontSize="9"
-                    fontFamily="monospace"
-                    fontWeight="bold"
-                    className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
-                  >
-                    {node.label}
-                  </text>
+                  {/* Node Label: Only complaint cases permanently, or if focused/hovered/neighbor */}
+                  {showLabel && (
+                    <text
+                      y={node.type === "complaint" ? 24 : 20}
+                      textAnchor="middle"
+                      fill="#e2e8f0"
+                      fontSize="9"
+                      fontFamily="monospace"
+                      fontWeight="bold"
+                      className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] pointer-events-none select-none"
+                    >
+                      {node.label}
+                    </text>
+                  )}
 
                   {/* Secondary Match Flag Indicator */}
                   {node.degree > 1 && (
@@ -449,6 +575,7 @@ export default function LinkAnalysisGraph({
                         fill="#ffffff"
                         fontSize="8"
                         fontWeight="bold"
+                        className="pointer-events-none select-none"
                       >
                         {node.degree}
                       </text>
@@ -458,26 +585,104 @@ export default function LinkAnalysisGraph({
               );
             })}
           </g>
+
+          {/* Tooltip on hover */}
+          {hoveredNode && (() => {
+            const pos = nodeLookup.get(hoveredNode.id) || hoveredNode;
+            const px = pos.x ?? 0;
+            const py = pos.y ?? 0;
+            return (
+              <g
+                transform={`translate(${px}, ${py - 32})`}
+                className="pointer-events-none transition-all duration-150"
+              >
+                <rect
+                  x="-80"
+                  y="-28"
+                  width="160"
+                  height="32"
+                  rx="6"
+                  fill="#090d16"
+                  stroke="#334155"
+                  strokeWidth="1"
+                  filter="url(#glow)"
+                  opacity="0.95"
+                />
+                <text
+                  x="0"
+                  y="-15"
+                  textAnchor="middle"
+                  fill="#f8fafc"
+                  fontSize="10"
+                  fontFamily="monospace"
+                  fontWeight="bold"
+                >
+                  {hoveredNode.label}
+                </text>
+                <text
+                  x="0"
+                  y="-3"
+                  textAnchor="middle"
+                  fill="#94a3b8"
+                  fontSize="8"
+                  fontWeight="medium"
+                >
+                  {hoveredNode.subLabel || `${hoveredNode.type.toUpperCase()} • ${hoveredNode.degree} links`}
+                </text>
+              </g>
+            );
+          })()}
         </svg>
 
         {/* Floating Syndicate Ring Badge Overlay */}
-        <div className="absolute left-4 bottom-4 flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-card/90 backdrop-blur-md p-3 text-xs shadow-xl pointer-events-auto max-w-xs">
-          <div className="flex items-center gap-1.5 font-bold text-foreground">
-            <Sparkles className="size-3.5 text-primary" />
-            <span>Active Syndicate Detection</span>
+        <div className="absolute left-4 bottom-4 flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-card/90 backdrop-blur-md p-3 text-xs shadow-xl pointer-events-auto max-w-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 font-bold text-foreground">
+              <Sparkles className="size-3.5 text-primary" />
+              <span>Active Syndicate Detection</span>
+            </div>
+            {selectedRing && (
+              <button
+                type="button"
+                onClick={() => setSelectedRing(null)}
+                className="text-[9px] text-muted-foreground hover:text-foreground font-mono underline"
+              >
+                Clear filter
+              </button>
+            )}
           </div>
           <div className="flex flex-wrap gap-1 mt-1">
-            {graphData.summary.syndicateClusters.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-lg bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 font-mono text-[9px] font-bold text-rose-400"
-              >
-                {tag}
-              </span>
-            ))}
+            <button
+              type="button"
+              onClick={() => setSelectedRing(null)}
+              className={`rounded-lg px-2 py-0.5 font-mono text-[9px] font-bold transition-all ${
+                selectedRing === null
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/40 text-muted-foreground hover:text-foreground border border-border/50"
+              }`}
+            >
+              Show all
+            </button>
+            {graphData.summary.syndicateClusters.map((tag) => {
+              const isSelected = selectedRing === tag;
+              return (
+                <button
+                  type="button"
+                  key={tag}
+                  onClick={() => setSelectedRing(isSelected ? null : tag)}
+                  className={`rounded-lg border px-2 py-0.5 font-mono text-[9px] font-bold transition-all ${
+                    isSelected
+                      ? "bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-600/30 scale-105"
+                      : "bg-rose-500/15 border-rose-500/30 text-rose-400 hover:bg-rose-500/25"
+                  }`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
           </div>
           <p className="text-[10px] text-muted-foreground mt-1">
-            Mule accounts &amp; phone numbers shared across multiple complaints are flagged in red.
+            Mule accounts &amp; phone numbers shared across multiple complaints are flagged in red. Click a ring chip to filter.
           </p>
         </div>
 
@@ -557,6 +762,27 @@ export default function LinkAnalysisGraph({
           <div className="flex items-center gap-1.5">
             <span className="size-2.5 rounded-full bg-blue-500" />
             <span>Bank Institution</span>
+          </div>
+        </div>
+
+        {/* Link-type Legend */}
+        <div className="flex flex-wrap items-center gap-3 border-t sm:border-t-0 sm:border-l border-border/40 pt-2 sm:pt-0 sm:pl-3">
+          <span className="font-semibold text-foreground/80 text-[10px] uppercase">Links:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3.5 h-0.5 bg-amber-500 inline-block" />
+            <span className="text-[10px]">Transfer</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3.5 h-0.5 border-b border-dashed border-cyan-400 inline-block" />
+            <span className="text-[10px]">Called</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3.5 h-0.5 border-b border-dashed border-blue-500 inline-block" />
+            <span className="text-[10px]">Bank</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-3.5 h-0.5 border-b border-dotted border-purple-400 inline-block" />
+            <span className="text-[10px]">Hotspot</span>
           </div>
         </div>
 

@@ -229,20 +229,29 @@ export function generateEvidenceReportPDF(
 
   // ── Footer & Legal Certification ──
   doc.setDrawColor(226, 232, 240);
-  doc.line(14, pageHeight - 22, pageWidth - 14, pageHeight - 22);
+  doc.line(14, pageHeight - 24, pageWidth - 14, pageHeight - 24);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.setTextColor(217, 119, 6);
+  doc.text(
+    "DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.",
+    14,
+    pageHeight - 18,
+  );
 
   doc.setFont("helvetica", "italic");
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
   doc.setTextColor(100, 116, 139);
   doc.text(
     "This evidence report is automatically compiled by CipherTrace Cybercrime Command under Section 65B of the Indian Evidence Act / BNSS.",
     14,
-    pageHeight - 16,
+    pageHeight - 13,
   );
   doc.text(
     "For Official Police and Financial Intelligence Unit Use Only. Tampering with this document invalidates the cryptographic hash chain.",
     14,
-    pageHeight - 11,
+    pageHeight - 9,
   );
 
   // ── Trigger Direct Browser Download ──

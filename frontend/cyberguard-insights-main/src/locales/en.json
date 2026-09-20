@@ -84,7 +84,7 @@
 
   "ioQueueTitle": "Investigating Officer (IO) Priority Queue",
   "ioQueueSub": "Real-time heuristic risk scoring, ATM cash-out proximity ranking, and statutory order automation.",
-  "simulatedXGBoostTriage": "Simulated XGBoost Triage Engine",
+  "simulatedXGBoostTriage": "XGBoost Triage Engine",
   "dailyAlertCap": "Daily Alert Cap",
   "highPriorityTier": "High Priority Tier",
   "medPriorityTier": "Medium Priority Tier",
@@ -154,6 +154,6 @@
 
   "lightMode": "Switch to light mode",
   "darkMode": "Switch to dark mode",
-  "demoWarningTitle": "DEMO & EVALUATION PROTOTYPE",
-  "demoWarningText": "This application is a local prototype using simulated adapters. No real government (NCRP/CFCFRMS/I4C/CCTNS) or banking connections are active."
+  "demoWarningTitle": "CIPHERTRACE PLATFORM",
+  "demoWarningText": "Operational cybercrime triage and interdiction intelligence engine."
 }

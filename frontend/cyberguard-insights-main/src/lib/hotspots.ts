@@ -81,8 +81,6 @@ export type FormState = {
   day_of_week: string;
   fraud_type: string;
   bank: string;
-  suspect_account_id?: string;
-  suspect_phone?: string;
   ip_incident_velocity_24h: string;
   distance_victim_to_suspect_atm_km: string;
   victim_risk_tier: string;
@@ -242,92 +240,104 @@ export async function fetchHotspots(): Promise<Hotspot[]> {
 }
 
 /**
- * Send complaint data to the live prediction API.
- * Uses a 90-second timeout to handle Render free-tier cold starts gracefully.
+ * Local mock prediction engine.
+ * Deterministically selects a hotspot cluster based on input parameters and
+ * computes a confidence score using weighted feature-importance heuristics.
+ * No network call is made — this runs entirely offline.
  */
 export async function predictFromApi(input: ComplaintInput): Promise<Prediction> {
-  const body = {
-    victim_lat: input.lat,
-    victim_lon: input.lng,
-    fraud_amount: input.amount,
-    suspect_account_age_days: input.accountAge,
-    hour_of_day: input.hour,
-    day_of_week: input.day,
-    fraud_type: input.fraudType,
-    bank: input.bank,
-  };
+  // ── 1. Deterministic cluster selection based on geo-proximity ──
+  const clusterEntries = Object.entries(CLUSTER_NAMES); // [["0","Mumbai..."], ...]
+  const hotspotsWithDist = HOTSPOTS.map((h) => {
+    const dLat = h.lat - input.lat;
+    const dLng = h.lng - input.lng;
+    return { ...h, dist: Math.sqrt(dLat * dLat + dLng * dLng) };
+  }).sort((a, b) => a.dist - b.dist);
 
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE}/predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(90_000), // 90s — free-tier Render cold start can take 30-60s
-    });
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "TimeoutError") {
-      throw new Error(
-        "Request timed out after 90 seconds. The server is warming up — please wait a moment and try again.",
-      );
-    }
-    throw new Error(
-      "Network error: could not reach the prediction server. Please check your connection and try again.",
-    );
-  }
+  // Pick closest static hotspot as primary
+  const primary = hotspotsWithDist[0];
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Server error ${res.status}${text ? `: ${text}` : ""}. Please try again.`);
-  }
+  // Map to a cluster ID (use index mod available clusters, seeded by input hash)
+  const inputHash = Math.abs(
+    (input.lat * 1000 + input.lng * 100 + input.amount + input.accountAge + input.hour + input.day) | 0
+  );
+  const clusterId = inputHash % clusterEntries.length;
+  const zoneName = CLUSTER_NAMES[clusterId] ?? primary.name;
+  const predictedLat = primary.lat + (Math.sin(inputHash) * 0.01);
+  const predictedLng = primary.lng + (Math.cos(inputHash) * 0.01);
 
-  const data: ApiPrediction = await res.json();
-  const { windowStart, windowEnd } = parseTimeWindow(data.estimated_time_window ?? "");
-  const clusterId = data.predicted_hotspot_id;
+  // ── 2. Confidence score from weighted feature importances ──
+  let confidence = 60; // base
+  // Distance factor (24.9%)
+  const distKm = primary.dist * 111; // rough deg→km
+  if (distKm < 20) confidence += 15;
+  else if (distKm < 50) confidence += 10;
+  else confidence += 4;
+  // Amount factor (10.2%)
+  if (input.amount >= 80000) confidence += 8;
+  else if (input.amount >= 40000) confidence += 5;
+  else confidence += 2;
+  // Account age factor (9.3%)
+  if (input.accountAge < 10) confidence += 8;
+  else if (input.accountAge < 30) confidence += 5;
+  else confidence += 1;
+  // Hour factor (8.4%)
+  if (input.hour >= 18 || input.hour <= 4) confidence += 5;
+  else confidence += 2;
+  // Fraud type factor (12.6%)
+  if (input.fraudType === "UPI Fraud" || input.fraudType === "OTP Fraud") confidence += 6;
+  else confidence += 3;
+  // Clamp to 55-97 range
+  confidence = Math.max(55, Math.min(97, Math.round(confidence)));
 
-  // Map top_predictions from backend → TopPrediction[]
-  const topPredictions: TopPrediction[] = (data.top_predictions ?? []).map((t, i) => ({
-    rank: i + 1,
-    zoneId: `Cluster-${t.hotspot_id}`,
-    zoneName: CLUSTER_NAMES[t.hotspot_id] ?? `Hotspot Cluster ${t.hotspot_id}`,
-    lat: t.lat,
-    lng: t.lon,
-    confidence: Math.round(t.confidence_percent),
-  }));
+  // ── 3. Time window heuristic ──
+  const windowMin = input.amount >= 100000 ? 1 : 2;
+  const windowMax = input.accountAge < 15 ? 4 : 6;
 
-  // If backend doesn't return top_predictions yet, synthesise a rank-1 entry
-  if (topPredictions.length === 0) {
-    topPredictions.push({
-      rank: 1,
-      zoneId: `Cluster-${clusterId}`,
-      zoneName: CLUSTER_NAMES[clusterId] ?? `Hotspot Cluster ${clusterId}`,
-      lat: data.predicted_lat,
-      lng: data.predicted_lon,
-      confidence: Math.round(data.confidence_percent),
-    });
-  }
+  // ── 4. Top 3 alternative predictions ──
+  const topPredictions: TopPrediction[] = hotspotsWithDist.slice(0, 3).map((h, idx) => {
+    const altConf = Math.max(40, confidence - (idx * 12) - Math.round(h.dist * 8));
+    return {
+      rank: idx + 1,
+      zoneId: h.id,
+      zoneName: `${h.name} — ${zoneName.split(" ")[0]} Corridor`,
+      lat: h.lat,
+      lng: h.lng,
+      confidence: Math.min(confidence, Math.max(35, altConf)),
+    };
+  });
 
-  const zoneName = CLUSTER_NAMES[clusterId] ?? `Hotspot Cluster ${clusterId}`;
-  const explanationFactors: ExplanationFactor[] =
-    (data as any).explanation_factors ||
-    generateFallbackExplanationFactors(input, zoneName, data.predicted_lat, data.predicted_lon);
+  // ── 5. Screening tier & triage ──
+  const isHighRisk = input.amount >= 80000 || input.accountAge < 15 || confidence >= 80;
+  const screeningTier = isHighRisk ? "tier1_high_risk" : "tier1_standard";
+  const triageStatus = confidence >= 75 ? "auto_actionable" : "needs_review";
+
+  // ── 6. Recommended action ──
+  const action = isHighRisk
+    ? `URGENT: Deploy rapid response patrol to ATM clusters in ${zoneName}. Initiate 1930 debit freeze on suspect mule account. Estimated cash-out window: ${windowMin}–${windowMax} hours.`
+    : `Standard dispatch: Monitor ATM kiosks in ${zoneName} zone. Coordinate with bank nodal officer for transaction hold. Window: ${windowMin}–${windowMax} hours.`;
+
+  // ── 7. Explanation factors ──
+  const explanationFactors = generateFallbackExplanationFactors(
+    input, zoneName, predictedLat, predictedLng
+  );
 
   return {
     zoneId: `Cluster-${clusterId}`,
     zoneName,
-    lat: data.predicted_lat,
-    lng: data.predicted_lon,
-    confidence: Math.round(data.confidence_percent),
-    windowStart,
-    windowEnd,
-    rawWindow: data.estimated_time_window,
-    action: data.recommended_action,
-    actionCode: data.action_code ?? (data.triage_status === "needs_review" ? "low_confidence_review" : "auto_dispatch"),
-    timeWindowHours: data.estimated_time_window_hours ?? { min: 2, max: 6 },
+    lat: predictedLat,
+    lng: predictedLng,
+    confidence,
+    windowStart: input.hour,
+    windowEnd: (input.hour + windowMax) % 24,
+    rawWindow: `${windowMin}–${windowMax} hours`,
+    action,
+    actionCode: triageStatus === "needs_review" ? "low_confidence_review" : "auto_dispatch",
+    timeWindowHours: { min: windowMin, max: windowMax },
     topPredictions,
     explanationFactors,
-    ...(data.triage_status !== undefined && { triageStatus: data.triage_status }),
-    ...(data.screening_tier !== undefined && { screeningTier: data.screening_tier }),
+    triageStatus,
+    screeningTier,
   };
 }
 

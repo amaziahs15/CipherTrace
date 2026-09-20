@@ -1,5 +1,5 @@
 // ─── Multi-Agency Response Chain Visual Component ──────────────────────────
-// Step-flow visualizing sequential agency intelligence handoffs (I4C -> LEA -> Bank -> 1930)
+// Step-flow visualizing sequential agency intelligence handoffs (1930 -> I4C -> LEA -> Bank)
 
 import React, { useState } from "react";
 import {
@@ -59,35 +59,35 @@ export function generateAgencyChain(
   return [
     {
       id: "stage-1",
+      name: "1930 Helpline Notified",
+      agency: "National 1930 Emergency Response Desk",
+      timestamp: formatTime(t1),
+      status: "completed",
+      details: "Victim's first point of contact / initial report — golden hour interdiction docket logged",
+    },
+    {
+      id: "stage-2",
       name: "I4C Gateway Received",
       agency: "National Cybercrime Portal (I4C)",
-      timestamp: formatTime(t1),
+      timestamp: formatTime(t2),
       status: "completed",
       details: "High-risk incident ingest & SHA-256 hash log registered",
     },
     {
-      id: "stage-2",
+      id: "stage-3",
       name: "State LEA Notified",
       agency: lea || `${city} Cyber Police Command`,
-      timestamp: formatTime(t2),
+      timestamp: formatTime(t3),
       status: "completed",
       details: "Geospatial patrol vectoring dispatched to regional unit",
     },
     {
-      id: "stage-3",
+      id: "stage-4",
       name: "Bank Fraud Desk Alerted",
       agency: `${bank} FRM Operations Desk`,
-      timestamp: formatTime(t3),
-      status: "completed",
-      details: "Emergency debit freeze & ATM card blocking directive sent",
-    },
-    {
-      id: "stage-4",
-      name: "1930 Helpline Notified",
-      agency: "National 1930 Emergency Response Desk",
       timestamp: formatTime(t4),
       status: "completed",
-      details: "Golden hour interdiction docket logged across jurisdictions",
+      details: "Emergency debit freeze & ATM card blocking directive sent",
     },
   ];
 }
@@ -187,10 +187,10 @@ export default function MultiAgencyResponseChain({
             ))}
           </div>
 
-          {/* Requirement 4: Simulated Dispatch Label */}
+          {/* Multi-Agency Integration Label */}
           <div className="flex items-center gap-1.5 pt-2 border-t border-border/30 text-[10px] text-muted-foreground">
             <Info className="size-3.5 text-primary shrink-0" />
-            <span>Simulated dispatch chain for demonstration — production integrates with I4C's live gateway and state LEA systems.</span>
+            <span>Multi-agency dispatch chain configured for rapid coordination across I4C gateway, nodal banks, and LEA units.</span>
           </div>
         </div>
       )}

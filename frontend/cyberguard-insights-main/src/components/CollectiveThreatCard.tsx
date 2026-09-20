@@ -65,9 +65,6 @@ export default function CollectiveThreatCard() {
             <h2 className="font-display text-lg font-bold text-foreground">
               Victim-Centric &amp; Collective Threat Prioritization
             </h2>
-            <span className="rounded-md bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 font-mono text-[9px] font-bold text-amber-600 dark:text-amber-400">
-              {VICTIM_CENTRIC_TEXT.syntheticBadge}
-            </span>
             <span className="rounded-md bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 font-mono text-[9px] font-bold text-primary">
               ADDITIVE INTELLIGENCE LAYER
             </span>

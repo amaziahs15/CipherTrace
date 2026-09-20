@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as ChatRouteImport } from './routes/chat'
@@ -19,11 +20,17 @@ import { Route as FraudRingsRouteImport } from './routes/fraud-rings'
 import { Route as InvestigatorRouteImport } from './routes/investigator'
 import { Route as IoDashboardRouteImport } from './routes/io-dashboard'
 import { Route as MetricsRouteImport } from './routes/metrics'
+import { Route as TimestampAuditRouteImport } from './routes/timestamp-audit'
 import { Route as IoComplaintIdRouteImport } from './routes/io-complaint.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlertsRoute = AlertsRouteImport.update({
@@ -71,6 +78,11 @@ const MetricsRoute = MetricsRouteImport.update({
   path: '/metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TimestampAuditRoute = TimestampAuditRouteImport.update({
+  id: '/timestamp-audit',
+  path: '/timestamp-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IoComplaintIdRoute = IoComplaintIdRouteImport.update({
   id: '/io-complaint/$id',
   path: '/io-complaint/$id',
@@ -79,6 +91,7 @@ const IoComplaintIdRoute = IoComplaintIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/chat': typeof ChatRoute
@@ -88,10 +101,12 @@ export interface FileRoutesByFullPath {
   '/investigator': typeof InvestigatorRoute
   '/io-dashboard': typeof IoDashboardRoute
   '/metrics': typeof MetricsRoute
+  '/timestamp-audit': typeof TimestampAuditRoute
   '/io-complaint/$id': typeof IoComplaintIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/chat': typeof ChatRoute
@@ -101,11 +116,13 @@ export interface FileRoutesByTo {
   '/investigator': typeof InvestigatorRoute
   '/io-dashboard': typeof IoDashboardRoute
   '/metrics': typeof MetricsRoute
+  '/timestamp-audit': typeof TimestampAuditRoute
   '/io-complaint/$id': typeof IoComplaintIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/chat': typeof ChatRoute
@@ -115,12 +132,14 @@ export interface FileRoutesById {
   '/investigator': typeof InvestigatorRoute
   '/io-dashboard': typeof IoDashboardRoute
   '/metrics': typeof MetricsRoute
+  '/timestamp-audit': typeof TimestampAuditRoute
   '/io-complaint/$id': typeof IoComplaintIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/alerts'
     | '/audit'
     | '/chat'
@@ -130,10 +149,12 @@ export interface FileRouteTypes {
     | '/investigator'
     | '/io-dashboard'
     | '/metrics'
+    | '/timestamp-audit'
     | '/io-complaint/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/alerts'
     | '/audit'
     | '/chat'
@@ -143,10 +164,12 @@ export interface FileRouteTypes {
     | '/investigator'
     | '/io-dashboard'
     | '/metrics'
+    | '/timestamp-audit'
     | '/io-complaint/$id'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/alerts'
     | '/audit'
     | '/chat'
@@ -156,11 +179,13 @@ export interface FileRouteTypes {
     | '/investigator'
     | '/io-dashboard'
     | '/metrics'
+    | '/timestamp-audit'
     | '/io-complaint/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AlertsRoute: typeof AlertsRoute
   AuditRoute: typeof AuditRoute
   ChatRoute: typeof ChatRoute
@@ -170,6 +195,7 @@ export interface RootRouteChildren {
   InvestigatorRoute: typeof InvestigatorRoute
   IoDashboardRoute: typeof IoDashboardRoute
   MetricsRoute: typeof MetricsRoute
+  TimestampAuditRoute: typeof TimestampAuditRoute
   IoComplaintIdRoute: typeof IoComplaintIdRoute
 }
 
@@ -180,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alerts': {
@@ -245,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MetricsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/timestamp-audit': {
+      id: '/timestamp-audit'
+      path: '/timestamp-audit'
+      fullPath: '/timestamp-audit'
+      preLoaderRoute: typeof TimestampAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/io-complaint/$id': {
       id: '/io-complaint/$id'
       path: '/io-complaint/$id'
@@ -257,6 +297,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AlertsRoute: AlertsRoute,
   AuditRoute: AuditRoute,
   ChatRoute: ChatRoute,
@@ -266,6 +307,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvestigatorRoute: InvestigatorRoute,
   IoDashboardRoute: IoDashboardRoute,
   MetricsRoute: MetricsRoute,
+  TimestampAuditRoute: TimestampAuditRoute,
   IoComplaintIdRoute: IoComplaintIdRoute,
 }
 export const routeTree = rootRouteImport

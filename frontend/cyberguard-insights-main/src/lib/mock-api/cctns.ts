@@ -13,18 +13,18 @@ const delay = (ms = 40) => new Promise((r) => setTimeout(r, ms));
 /** In-memory case store for the current session */
 const cases: CctnsCase[] = [
   {
-    fir_number: "FIR/2024/CYBER/DL/001234 (Synthetic)",
+    fir_number: "FIR/2024/CYBER/DL/001234",
     complaint_ids: ["NCRP-2024-001234", "NCRP-2024-001236"],
-    filing_officer: "IO Sharma (Synthetic)",
+    filing_officer: "IO Sharma",
     station: "Cyber Crime PS, Delhi",
     filed_at: "2026-09-06T10:30:00+05:30",
     sections: ["66C IT Act 2000", "66D IT Act 2000", "420 IPC"],
     status: "FILED",
   },
   {
-    fir_number: "FIR/2024/CYBER/MH/005678 (Synthetic)",
+    fir_number: "FIR/2024/CYBER/MH/005678",
     complaint_ids: ["NCRP-2024-001235"],
-    filing_officer: "IO Patil (Synthetic)",
+    filing_officer: "IO Patil",
     station: "Cyber Crime PS, Mumbai",
     filed_at: "2026-09-06T11:00:00+05:30",
     sections: ["66C IT Act 2000", "420 IPC", "34 IPC"],

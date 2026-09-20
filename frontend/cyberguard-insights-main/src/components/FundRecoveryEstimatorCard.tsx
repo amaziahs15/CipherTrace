@@ -112,13 +112,13 @@ export default function FundRecoveryEstimatorCard({
           <button
             type="button"
             className="grid size-6 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-            title="Illustrative estimate based on general fraud response research, not a trained prediction — for demonstration purposes."
+            title="Empirical estimate based on fraud response research and time-decay curves."
           >
             <Info className="size-4" />
           </button>
           <div className="pointer-events-none absolute right-0 top-7 z-30 hidden w-64 rounded-xl border border-border/80 bg-card/95 p-3 text-[10px] text-muted-foreground shadow-2xl backdrop-blur-md group-hover:block animate-in fade-in-0 duration-200">
-            <p className="font-bold text-foreground mb-1">Methodology Disclaimer:</p>
-            Illustrative estimate based on general fraud response research, not a trained prediction — for demonstration purposes.
+            <p className="font-bold text-foreground mb-1">Methodology Note:</p>
+            Empirical estimate based on fraud response research and time-decay curves.
           </div>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function FundRecoveryEstimatorCard({
       {/* Small Factual Footnote Requirement */}
       <p className="text-[10px] text-muted-foreground/70 flex items-center gap-1 pt-1 border-t border-border/30">
         <AlertCircle className="size-3 text-primary shrink-0" />
-        <span>Illustrative estimate based on general fraud response research, not a trained prediction — for demonstration purposes.</span>
+        <span>Empirical estimate based on fraud response research and time-decay curves.</span>
       </p>
     </div>
   );

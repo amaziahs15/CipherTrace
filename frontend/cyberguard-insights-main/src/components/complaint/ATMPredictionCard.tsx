@@ -31,7 +31,7 @@ export default function ATMPredictionCard({
   const handleSendAlert = () => {
     appendAudit({
       timestamp: new Date().toISOString(),
-      actor: "Investigating Officer (Demo IO-104)",
+      actor: "Investigating Officer (IO-104)",
       action: "ATM_ALERT_DISPATCHED",
       complaint_id: complaint.complaint_id,
       detail: `Alert dispatched to ${prediction.bank} Nodal Officer ${prediction.nodal_officer_name} (${prediction.nodal_officer_phone}) for ATM ${prediction.atm_id}`,

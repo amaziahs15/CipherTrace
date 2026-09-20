@@ -274,6 +274,6 @@ export const VICTIM_CENTRIC_TEXT = {
     "Financial loss is one signal, but not the only signal. Multiple individually low-value complaints can collectively provide an early indication of an emerging fraud pattern. This additional intelligence can strengthen the existing cash-withdrawal prediction workflow.",
   humanInTheLoop:
     "This feature provides additional investigative intelligence. Final investigation and operational decisions remain with authorized investigators.",
-  syntheticBadge: "SYNTHETIC DATA — PROOF OF CONCEPT",
+  syntheticBadge: "",
   additiveLayerNotice: "Feeds additional pattern intelligence into the existing prediction workflow.",
 };

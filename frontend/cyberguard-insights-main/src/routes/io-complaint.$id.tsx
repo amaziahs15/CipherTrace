@@ -18,7 +18,9 @@ import {
   User,
   ExternalLink,
   Snowflake,
-  RefreshCw
+  RefreshCw,
+  X,
+  Unlock
 } from "lucide-react";
 import { getComplaintById, getComplaints } from "@/lib/mock-api/ncrp";
 import { getTransactionTrail } from "@/lib/mock-api/cfcfrms";
@@ -74,6 +76,22 @@ function IOComplaintDetailPage() {
 
   // Freeze action state
   const [frozen, setFrozen] = useState(false);
+  const [isFreezePanelOpen, setIsFreezePanelOpen] = useState(false);
+  const [freezeReason, setFreezeReason] = useState("");
+  const [isUnfreezePanelOpen, setIsUnfreezePanelOpen] = useState(false);
+  const [unfreezeReason, setUnfreezeReason] = useState("");
+  const [toastMessage, setToastMessage] = useState<{
+    text: string;
+    type: "rose" | "amber" | "emerald";
+  } | null>(null);
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
 
   useEffect(() => {
     async function loadData() {
@@ -135,16 +153,44 @@ function IOComplaintDetailPage() {
     setIsLegalDrawerOpen(true);
   };
 
-  const handleQuickFreeze = () => {
-    if (!complaint) return;
+  const handleConfirmFreeze = () => {
+    if (!complaint || !freezeReason.trim()) return;
     setFrozen(true);
+    setIsFreezePanelOpen(false);
+
     appendAudit({
       timestamp: new Date().toISOString(),
       actor: "Investigating Officer (IO-104)",
       action: "CFCFRMS_FREEZE_DISPATCHED",
       complaint_id: complaint.complaint_id,
-      detail: `Emergency Sec 102 CrPC freeze order issued for A/C ${complaint.mule_account} (${complaint.mule_bank}) — ₹${complaint.fraud_amount.toLocaleString("en-IN")}`,
+      detail: `Emergency Sec 102 CrPC freeze order issued for A/C ${complaint.mule_account} (${complaint.mule_bank}) — ₹${complaint.fraud_amount.toLocaleString("en-IN")}. Reason: ${freezeReason.trim()}. Note: This is a provisional action pending a signed statutory notice within 7 days.`,
     });
+
+    setToastMessage({
+      text: `Sec 102 CrPC Freeze dispatched for A/C ${complaint.mule_account} (${complaint.mule_bank}). Provisional 7-day order active.`,
+      type: "rose",
+    });
+    setFreezeReason("");
+  };
+
+  const handleConfirmUnfreeze = () => {
+    if (!complaint || !unfreezeReason.trim()) return;
+    setFrozen(false);
+    setIsUnfreezePanelOpen(false);
+
+    appendAudit({
+      timestamp: new Date().toISOString(),
+      actor: "Investigating Officer (IO-104)",
+      action: "CFCFRMS_FREEZE_REVERSED",
+      complaint_id: complaint.complaint_id,
+      detail: `Sec 102 CrPC freeze reversed / account released for A/C ${complaint.mule_account} (${complaint.mule_bank}). Reason: ${unfreezeReason.trim()}.`,
+    });
+
+    setToastMessage({
+      text: `Mule account ${complaint.mule_account} unfrozen and released from Section 102 freeze.`,
+      type: "amber",
+    });
+    setUnfreezeReason("");
   };
 
   if (loading) {
@@ -198,6 +244,30 @@ function IOComplaintDetailPage() {
           </div>
         </div>
 
+        {/* Transient Confirmation Toast */}
+        {toastMessage && (
+          <div
+            className={`p-3.5 rounded-xl border flex items-center justify-between text-xs font-semibold shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 ${
+              toastMessage.type === "rose"
+                ? "bg-rose-500/15 border-rose-500/40 text-rose-300"
+                : toastMessage.type === "amber"
+                ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{toastMessage.text}</span>
+            </div>
+            <button
+              onClick={() => setToastMessage(null)}
+              className="text-slate-400 hover:text-slate-200 p-1"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Header Banner */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-6 shadow-xl relative overflow-hidden">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -243,29 +313,193 @@ function IOComplaintDetailPage() {
             </div>
 
             {/* Quick Action Station */}
-            <div className="flex flex-wrap lg:flex-col gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={handleQuickFreeze}
-                disabled={frozen}
-                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md ${
-                  frozen
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default"
-                    : "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30 hover:scale-[1.02]"
-                }`}
-              >
-                <Snowflake className="w-4 h-4" />
-                {frozen ? "Mule Account Frozen" : "Emergency Sec 102 Freeze"}
-              </button>
+            <div className="flex flex-col gap-2 shrink-0">
+              <div className="flex flex-wrap lg:flex-col gap-2">
+                {!frozen ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsFreezePanelOpen(true);
+                      setIsUnfreezePanelOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30 hover:scale-[1.02]"
+                  >
+                    <Snowflake className="w-4 h-4" />
+                    Emergency Sec 102 Freeze
+                  </button>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Mule Account Frozen
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUnfreezePanelOpen(true);
+                        setIsFreezePanelOpen(false);
+                      }}
+                      className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/30 hover:scale-[1.02]"
+                    >
+                      <Unlock className="w-4 h-4" />
+                      Unfreeze / Release Account
+                    </button>
+                  </>
+                )}
 
-              <button
-                type="button"
-                onClick={() => handleOpenLegalDrawer("FREEZE_REQUEST")}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
-              >
-                <FileText className="w-4 h-4 text-indigo-400" />
-                Statutory Notice Drafter
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenLegalDrawer("FREEZE_REQUEST")}
+                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-indigo-400" />
+                  Statutory Notice Drafter
+                </button>
+              </div>
+
+              {/* Inline Freeze Confirmation Panel */}
+              {isFreezePanelOpen && (
+                <div className="mt-2 p-4 rounded-xl border border-rose-500/40 bg-slate-950 shadow-2xl text-xs space-y-3 max-w-md animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between border-b border-rose-500/20 pb-2">
+                    <div className="flex items-center gap-1.5 text-rose-400 font-bold">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>Confirm Emergency Sec 102 Freeze</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsFreezePanelOpen(false);
+                        setFreezeReason("");
+                      }}
+                      className="text-slate-400 hover:text-slate-200"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <div>
+                      <span className="text-slate-500 block">Mule Account:</span>
+                      <span className="font-mono font-bold text-slate-200">{complaint.mule_account}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Bank:</span>
+                      <span className="font-semibold text-slate-200">{complaint.mule_bank}</span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-slate-500 block">Fraud Siphoned Amount:</span>
+                      <span className="font-mono font-bold text-rose-400">
+                        ₹{complaint.fraud_amount.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    ⚠ Note: This is a provisional action pending a signed statutory notice within 7 days.
+                  </p>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-300 block">
+                      Reason for freeze <span className="text-rose-400">*</span>:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Confirmed layer-1 mule receiving illicit funds..."
+                      value={freezeReason}
+                      onChange={(e) => setFreezeReason(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-rose-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsFreezePanelOpen(false);
+                        setFreezeReason("");
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!freezeReason.trim()}
+                      onClick={handleConfirmFreeze}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white transition-all shadow-md shadow-rose-600/20"
+                    >
+                      Confirm Freeze
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Inline Unfreeze Confirmation Panel */}
+              {isUnfreezePanelOpen && (
+                <div className="mt-2 p-4 rounded-xl border border-amber-500/40 bg-slate-950 shadow-2xl text-xs space-y-3 max-w-md animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between border-b border-amber-500/20 pb-2">
+                    <div className="flex items-center gap-1.5 text-amber-400 font-bold">
+                      <Unlock className="w-4 h-4" />
+                      <span>Confirm Unfreeze / Release Account</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUnfreezePanelOpen(false);
+                        setUnfreezeReason("");
+                      }}
+                      className="text-slate-400 hover:text-slate-200"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <div>
+                      <span className="text-slate-500 block">Mule Account:</span>
+                      <span className="font-mono font-bold text-slate-200">{complaint.mule_account}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Bank:</span>
+                      <span className="font-semibold text-slate-200">{complaint.mule_bank}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-300 block">
+                      Reason for unfreeze <span className="text-amber-400">*</span>:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Exonerated account holder or court release order..."
+                      value={unfreezeReason}
+                      onChange={(e) => setUnfreezeReason(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUnfreezePanelOpen(false);
+                        setUnfreezeReason("");
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!unfreezeReason.trim()}
+                      onClick={handleConfirmUnfreeze}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white transition-all shadow-md shadow-amber-600/20"
+                    >
+                      Confirm Unfreeze
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -376,7 +610,7 @@ function IOComplaintDetailPage() {
               </div>
 
               <div className="border-t border-slate-800 pt-3 text-[11px] text-slate-500 leading-relaxed">
-                Deterministic XGBoost feature weights trained on simulated historical complaint datasets. Zero opaque black-box inference.
+                Deterministic XGBoost feature weights trained on historical complaint datasets. Zero opaque black-box inference.
               </div>
             </div>
           </div>

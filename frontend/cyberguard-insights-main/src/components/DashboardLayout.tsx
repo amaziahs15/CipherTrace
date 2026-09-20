@@ -23,12 +23,13 @@ import {
   Sparkles,
   Maximize2,
   Layers,
+  ShieldCheck,
+  ScanEye,
 } from "lucide-react";
 import ThemeLanguageControls, { useTheme } from "@/components/ThemeLanguageControls";
 import AlertNotificationPanel from "@/components/AlertNotificationPanel";
 import FloatingAIAssistant from "@/components/FloatingAIAssistant";
 import { useI18n } from "@/lib/i18n";
-import DemoModeBanner from "@/components/layout/DemoModeBanner";
 
 export type RoleType = "citizen" | "investigator";
 
@@ -123,19 +124,30 @@ export default function DashboardLayout({
       badge: t.badgeVerified || "VERIFIED",
     },
     {
+      label: "Timestamp Audit",
+      description: "CCTV & Transaction Cross-Check",
+      icon: ScanEye,
+      to: "/timestamp-audit",
+      badge: "NEW",
+    },
+    {
       label: t.navMetrics || "System Metrics",
       description: t.navMetricsSub || "Benchmark & Performance",
       icon: Sparkles,
       to: "/metrics",
       badge: t.badgeRef || "REF",
     },
+    {
+      label: "Compliance & Legal",
+      description: "Statutory Disclaimers",
+      icon: ShieldCheck,
+      to: "/about",
+      badge: "DOCS",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-cyan-500/30">
-      {/* ── Demo Mode Warning Banner ── */}
-      <DemoModeBanner />
-
       {/* ── Top Header Navigation Bar ── */}
       <header className="header-gradient sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/50 bg-card/85 px-4 backdrop-blur-md sm:px-6">
         <div className="flex items-center gap-3">
@@ -169,7 +181,8 @@ export default function DashboardLayout({
         </div>
 
         {/* Top Bar Status, Role Switcher & Controls */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+
           {/* Live radar badge */}
           <div className="hidden lg:flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
             <span className="size-1.5 animate-ping rounded-full bg-emerald-400" />

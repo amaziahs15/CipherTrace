@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Shield,
   FileCheck,
@@ -20,6 +20,16 @@ interface EvidenceCollectorProps {
 }
 
 export default function EvidenceCollector({ complaint }: EvidenceCollectorProps) {
+  const [toleranceMinutes, setToleranceMinutes] = useState<number>(15);
+  const loggedMismatchesRef = useRef<Set<string>>(new Set());
+
+  const getMinuteDifference = (collectedAt: string, fraudTimestamp: string) => {
+    const d1 = new Date(collectedAt).getTime();
+    const d2 = new Date(fraudTimestamp).getTime();
+    if (isNaN(d1) || isNaN(d2)) return 0;
+    return Math.abs(Math.round((d1 - d2) / (60 * 1000)));
+  };
+
   const [evidenceItems, setEvidenceItems] = useState<EvidenceItem[]>([
     {
       evidence_id: `EVD-${complaint.complaint_id}-01`,
@@ -58,7 +68,60 @@ export default function EvidenceCollector({ complaint }: EvidenceCollectorProps)
         },
       ],
     },
+    {
+      evidence_id: `EVD-${complaint.complaint_id}-03`,
+      complaint_id: complaint.complaint_id,
+      type: "CCTV_CLIP",
+      description: `ATM Kiosk Overhead Camera Footage — Sector 12 ATM #04`,
+      hash: "a4f81c9b2e6789123456789abcdef0123456789abcdef0123456789abcdef012",
+      collected_at: new Date(new Date(complaint.fraud_timestamp).getTime() + 8 * 60000).toISOString(),
+      collected_by: "Branch Security Office",
+      chain_of_custody: [
+        {
+          timestamp: new Date(new Date(complaint.fraud_timestamp).getTime() + 8 * 60000).toISOString(),
+          officer: "IO-104 (Sub-Inspector)",
+          action: "COLLECTED",
+        },
+      ],
+    },
+    {
+      evidence_id: `EVD-${complaint.complaint_id}-04`,
+      complaint_id: complaint.complaint_id,
+      type: "CALL_LOG",
+      description: `Suspect VoIP Gateway Intercept & Call Detail Record (CDR)`,
+      hash: "d3c107dbc25c2c864d3885221e7658d2a6f821af0eef0cf47ef42ca95da31a44",
+      collected_at: new Date(new Date(complaint.fraud_timestamp).getTime() - 42 * 60000).toISOString(),
+      collected_by: "Telecom Circle Nodal Desk",
+      chain_of_custody: [
+        {
+          timestamp: new Date(new Date(complaint.fraud_timestamp).getTime() - 42 * 60000).toISOString(),
+          officer: "Telecom Nodal Cell",
+          action: "COLLECTED",
+        },
+      ],
+    },
   ]);
+
+  // Evaluate initial items and flag mismatches once
+  useEffect(() => {
+    evidenceItems.forEach((item) => {
+      if (item.type === "CCTV_CLIP" || item.type === "CALL_LOG") {
+        const diffMinutes = getMinuteDifference(item.collected_at, complaint.fraud_timestamp);
+        if (diffMinutes > toleranceMinutes) {
+          if (!loggedMismatchesRef.current.has(item.evidence_id)) {
+            loggedMismatchesRef.current.add(item.evidence_id);
+            appendAudit({
+              timestamp: new Date().toISOString(),
+              actor: "IO-104 (Evidence Vault)",
+              action: "EVIDENCE_TIMESTAMP_MISMATCH_FLAGGED",
+              complaint_id: complaint.complaint_id,
+              detail: `Timestamp mismatch flagged for ${item.evidence_id} (${item.type}): difference of ${diffMinutes} min from fraud event exceeds tolerance of ${toleranceMinutes} min.`,
+            });
+          }
+        }
+      }
+    });
+  }, [evidenceItems, toleranceMinutes, complaint.fraud_timestamp, complaint.complaint_id]);
 
   const [newDesc, setNewDesc] = useState("");
   const [newType, setNewType] = useState<EvidenceItem["type"]>("CCTV_CLIP");
@@ -101,6 +164,23 @@ export default function EvidenceCollector({ complaint }: EvidenceCollectorProps)
       detail: `New evidence item ${newId} (${newType}) secured with SHA-256 seal: ${hash.slice(0, 16)}...`,
     });
 
+    // Immediate timestamp verification for new CCTV / Call Log items
+    if (newType === "CCTV_CLIP" || newType === "CALL_LOG") {
+      const diffMinutes = getMinuteDifference(now, complaint.fraud_timestamp);
+      if (diffMinutes > toleranceMinutes) {
+        if (!loggedMismatchesRef.current.has(newId)) {
+          loggedMismatchesRef.current.add(newId);
+          appendAudit({
+            timestamp: now,
+            actor: "IO-104 (Evidence Vault)",
+            action: "EVIDENCE_TIMESTAMP_MISMATCH_FLAGGED",
+            complaint_id: complaint.complaint_id,
+            detail: `Timestamp mismatch flagged for ${newId} (${newType}): difference of ${diffMinutes} min from fraud event exceeds tolerance of ${toleranceMinutes} min.`,
+          });
+        }
+      }
+    }
+
     setNewDesc("");
   };
 
@@ -119,7 +199,7 @@ export default function EvidenceCollector({ complaint }: EvidenceCollectorProps)
 
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-lg">
-      <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
             <Lock className="w-5 h-5" />
@@ -133,10 +213,35 @@ export default function EvidenceCollector({ complaint }: EvidenceCollectorProps)
             </p>
           </div>
         </div>
-        <span className="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
-          {evidenceItems.length} Artifacts Sealed
-        </span>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Editable camera clock tolerance input */}
+          <div className="flex items-center gap-2 bg-slate-950/80 border border-slate-800 px-2.5 py-1 rounded-lg">
+            <Clock className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+            <label className="text-[11px] text-slate-300 whitespace-nowrap">
+              Camera clock tolerance (minutes):
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={720}
+              value={toleranceMinutes}
+              onChange={(e) => setToleranceMinutes(Math.max(0, parseInt(e.target.value, 10) || 0))}
+              className="w-14 bg-slate-900 border border-slate-700 text-slate-100 font-mono text-xs rounded px-1.5 py-0.5 text-center focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <span className="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+            {evidenceItems.length} Artifacts Sealed
+          </span>
+        </div>
       </div>
+
+      {/* Explanatory Caption */}
+      <p className="text-[11px] text-slate-400 mb-3 flex items-center gap-1.5">
+        <Clock className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+        <span>Physical device clock verification flags CCTV footage and call record timestamps that diverge from the reported fraud event beyond the allowable tolerance.</span>
+      </p>
 
       {/* Items list */}
       <div className="space-y-3 mb-5">
@@ -152,6 +257,19 @@ export default function EvidenceCollector({ complaint }: EvidenceCollectorProps)
                 <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
                   {item.type.replace("_", " ")}
                 </span>
+                {(item.type === "CCTV_CLIP" || item.type === "CALL_LOG") && (() => {
+                  const diffMinutes = getMinuteDifference(item.collected_at, complaint.fraud_timestamp);
+                  const isVerified = diffMinutes <= toleranceMinutes;
+                  return isVerified ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                      ✓ Timestamp Verified (Δ {diffMinutes} min)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                      ⚠ Timestamp Mismatch (Δ {diffMinutes} min from fraud event)
+                    </span>
+                  );
+                })()}
               </div>
               <span className="text-slate-500 text-[11px]">
                 Secured: {new Date(item.collected_at).toLocaleString("en-IN")}

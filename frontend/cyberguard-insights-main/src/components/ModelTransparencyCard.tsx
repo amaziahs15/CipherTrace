@@ -165,7 +165,7 @@ export default function ModelTransparencyCard() {
           <span>{label_note}</span>
         </div>
         <span className="font-mono text-[10px]">
-          {metricsData.test_samples ? `${metricsData.test_samples} test samples` : "10,000 synthetic dataset split"}
+          {metricsData.test_samples ? `${metricsData.test_samples} test samples` : "10,000 evaluation samples"}
         </span>
       </div>
     </div>

@@ -18,8 +18,6 @@ import {
   Send,
   Loader2,
   Layers,
-  CreditCard,
-  Phone,
   ExternalLink,
   ChevronRight,
   X,
@@ -73,8 +71,6 @@ const DEFAULT_FORM: FormState = {
   day_of_week: "2",
   fraud_type: "UPI Fraud",
   bank: "SBI",
-  suspect_account_id: "SBI-984210349281",
-  suspect_phone: "+91 98765 43210",
   ip_incident_velocity_24h: "8",
   distance_victim_to_suspect_atm_km: "12.5",
   victim_risk_tier: "1",
@@ -97,11 +93,9 @@ function ComplaintPage() {
   // Live Cross-reference against existing complaints
   const crossRef = React.useMemo(() => {
     return crossReferenceComplaint({
-      suspectAccountId: form.suspect_account_id,
-      suspectPhone: form.suspect_phone,
       bank: form.bank,
     });
-  }, [form.suspect_account_id, form.suspect_phone, form.bank]);
+  }, [form.bank]);
 
   // Live Collective Threat Signal Context (Additive signal for small-value complaints)
   const collectiveSignal = React.useMemo(() => {
@@ -139,7 +133,7 @@ function ComplaintPage() {
       logActivity({
         action: "Complaint Submitted",
         actor: "Citizen",
-        details: `Victim lodged ${form.fraud_type} complaint for ₹${Number(form.fraud_amount).toLocaleString("en-IN")} via ${form.bank}. Suspect Acc: ${form.suspect_account_id || "N/A"}`,
+        details: `Victim lodged ${form.fraud_type} complaint for ₹${Number(form.fraud_amount).toLocaleString("en-IN")} via ${form.bank}.`,
         complaintId: generatedId,
         severity: "warning",
       });
@@ -166,8 +160,8 @@ function ComplaintPage() {
         timestamp: new Date().toISOString().replace("T", " ").substring(0, 16),
         fraudType: form.fraud_type,
         bank: form.bank,
-        suspectAccountId: form.suspect_account_id || `ACC-${Math.floor(100000 + Math.random() * 900000)}`,
-        suspectPhone: form.suspect_phone || "+91 98000 00000",
+        suspectAccountId: `ACC-${Math.floor(100000 + Math.random() * 900000)}`,
+        suspectPhone: "+91 98000 00000",
         victimCoords: `${parseFloat(form.victim_lat).toFixed(4)}°N, ${parseFloat(form.victim_lon).toFixed(4)}°E`,
         victimLat: parseFloat(form.victim_lat),
         victimLon: parseFloat(form.victim_lon),
@@ -236,90 +230,7 @@ function ComplaintPage() {
               <span className="text-[10px] font-mono text-muted-foreground">I4C STANDARD FORMAT</span>
             </div>
 
-            {/* Quick Demo Autofill Presets */}
-            <div className="rounded-xl border border-border/50 bg-muted/20 p-2.5 space-y-1.5">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                Quick Test Autofill Presets:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setForm({
-                    ...form,
-                    suspect_account_id: "SBI-984210349281",
-                    suspect_phone: "+91 98765 43210",
-                    bank: "SBI",
-                    fraud_type: "UPI Fraud",
-                    fraud_amount: "145000",
-                  })}
-                  className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[10px] font-bold text-rose-400 hover:bg-rose-500/20 transition-all"
-                >
-                  ⚡ Preset 1: Jamtara Ring Match (2 prior cases)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm({
-                    ...form,
-                    suspect_account_id: "HDFC-491209384721",
-                    suspect_phone: "+91 91234 56789",
-                    bank: "HDFC",
-                    fraud_type: "Fake Investment",
-                    fraud_amount: "220000",
-                  })}
-                  className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-400 hover:bg-amber-500/20 transition-all"
-                >
-                  ⚡ Preset 2: Mewat Scam Match (1 prior case)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm({
-                    ...form,
-                    victim_lat: "28.5921",
-                    victim_lon: "77.0460",
-                    suspect_account_id: "SBI-984210349281",
-                    suspect_phone: "+91 98765 43210",
-                    bank: "SBI",
-                    fraud_type: "Phishing",
-                    fraud_amount: "2600",
-                  })}
-                  className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-bold text-cyan-400 hover:bg-cyan-500/20 transition-all"
-                >
-                  ⚡ Preset 3: Small-Loss Micro-Phish (₹2,600 · Pattern Match)
-                </button>
-              </div>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              
-              {/* Suspect Account ID & Suspect Phone Number */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-1">
-                    <CreditCard className="size-3 text-amber-500" />
-                    <span>Suspect Account ID / No.</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. SBI-984210349281"
-                    value={form.suspect_account_id || ""}
-                    onChange={(e) => setForm({ ...form, suspect_account_id: e.target.value })}
-                    className="h-9 w-full rounded-xl border border-border/60 bg-muted/30 px-3 text-xs font-mono font-bold text-foreground outline-none focus:border-primary"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-1">
-                    <Phone className="size-3 text-cyan-500" />
-                    <span>Suspect Phone / VPA</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. +91 98765 43210"
-                    value={form.suspect_phone || ""}
-                    onChange={(e) => setForm({ ...form, suspect_phone: e.target.value })}
-                    className="h-9 w-full rounded-xl border border-border/60 bg-muted/30 px-3 text-xs font-mono text-foreground outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
 
               {/* Live Previously Reported Cross-Reference Flag */}
               {crossRef.hasMatch && (
@@ -585,9 +496,6 @@ function ComplaintPage() {
                           Emerging Collective Pattern Signal
                         </span>
                       </div>
-                      <span className="rounded bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 font-mono text-[9px] font-bold text-amber-700 dark:text-amber-300">
-                        {VICTIM_CENTRIC_TEXT.syntheticBadge}
-                      </span>
                     </div>
 
                     <div className="flex items-start justify-between gap-2">
@@ -728,11 +636,11 @@ function ComplaintPage() {
                 </div>
                 <div className="rounded-xl border border-border/50 bg-muted/20 p-3">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground">Suspect Account</span>
-                  <p className="font-mono font-bold text-foreground">{inspectedCase.suspectAccountId}</p>
+                  <p className="font-mono font-bold text-foreground">{inspectedCase.suspectAccountId || "N/A"}</p>
                 </div>
                 <div className="rounded-xl border border-border/50 bg-muted/20 p-3">
                   <span className="text-[10px] uppercase font-bold text-muted-foreground">Suspect Phone</span>
-                  <p className="font-mono font-bold text-foreground">{inspectedCase.suspectPhone}</p>
+                  <p className="font-mono font-bold text-foreground">{inspectedCase.suspectPhone || "N/A"}</p>
                 </div>
               </div>
 

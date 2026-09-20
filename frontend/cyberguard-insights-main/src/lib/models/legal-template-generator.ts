@@ -50,9 +50,8 @@ export function generateFreezeRequest(complaint: Complaint): LegalDocument {
   const content = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠  DRAFT — REQUIRES OFFICER REVIEW AND SIGNATURE  ⚠
+DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[SYNTHETIC DEMO DATA — NOT A REAL LEGAL DOCUMENT]
-
 BANK ACCOUNT FREEZE REQUEST
 
 Ref. No.: FREEZE-DRAFT-${complaint.complaint_id}
@@ -61,7 +60,7 @@ Date: ${new Date(now).toLocaleDateString("en-IN", { dateStyle: "long" })}
 To,
 The Nodal Officer (Cybercrime Compliance)
 ${complaint.mule_bank} Bank
-[Branch Address — Synthetic Placeholder]
+[Branch Address]
 
 Subject: Request for Immediate Freeze of Bank Account under Section 102
 CrPC / Section 17A PMLA in connection with NCRP Complaint
@@ -92,12 +91,13 @@ Legal Provision: Section 102 CrPC / Section 17A PMLA / Section 66 IT Act 2000
 Please acknowledge receipt and confirm freeze within 2 hours as per NPCI/RBI
 cybercrime SOP guidelines.
 
-[Officer Name & Designation — Synthetic Placeholder]
-[Station / Unit — Synthetic Placeholder]
-[Date & Stamp — Synthetic Placeholder]
+[Officer Name & Designation]
+[Station / Unit]
+[Date & Stamp]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠  DRAFT — REQUIRES OFFICER REVIEW AND SIGNATURE  ⚠
+DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
 
@@ -122,9 +122,8 @@ export function generateCCTVRequest(complaint: Complaint, atm: AtmPrediction): L
   const content = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠  DRAFT — REQUIRES OFFICER REVIEW AND SIGNATURE  ⚠
+DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[SYNTHETIC DEMO DATA — NOT A REAL LEGAL DOCUMENT]
-
 CCTV FOOTAGE REQUEST
 
 Ref. No.: CCTV-DRAFT-${complaint.complaint_id}-${atm.atm_id}
@@ -159,11 +158,12 @@ format along with a certificate of authenticity as per Section 65B Evidence Act.
 
 Legal Provision: Section 91 CrPC / Section 91 BNSS / Section 65B Indian Evidence Act
 
-[Officer Name & Designation — Synthetic Placeholder]
-[Station / Unit — Synthetic Placeholder]
+[Officer Name & Designation]
+[Station / Unit]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠  DRAFT — REQUIRES OFFICER REVIEW AND SIGNATURE  ⚠
+DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
 
@@ -187,9 +187,8 @@ export function generateLookoutNotice(complaint: Complaint): LegalDocument {
   const content = `
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠  DRAFT — REQUIRES OFFICER REVIEW AND SIGNATURE  ⚠
+DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[SYNTHETIC DEMO DATA — NOT A REAL LEGAL DOCUMENT]
-
 LOOKOUT CIRCULAR / NOTICE
 
 Ref. No.: LOC-DRAFT-${complaint.complaint_id}
@@ -197,7 +196,7 @@ Date: ${new Date(now).toLocaleDateString("en-IN", { dateStyle: "long" })}
 
 To,
 All Police Stations / ATM Surveillance Units
-[Region — Synthetic Placeholder]
+[Region]
 
 Subject: Lookout Notice for Suspect Linked to Cybercrime Complaint
 ${complaint.complaint_id} — ${complaint.fraud_type}
@@ -221,11 +220,12 @@ All ATMs within a 15 km radius of the above coordinates are requested to:
 
 Legal Provision: Section 41A CrPC / Section 35 BNSS
 
-[Officer Name & Designation — Synthetic Placeholder]
-[Station / Unit — Synthetic Placeholder]
+[Officer Name & Designation]
+[Station / Unit]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠  DRAFT — REQUIRES OFFICER REVIEW AND SIGNATURE  ⚠
+DRAFT — Requires officer review and signature before any real-world use. Not connected to live government or banking systems.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
 

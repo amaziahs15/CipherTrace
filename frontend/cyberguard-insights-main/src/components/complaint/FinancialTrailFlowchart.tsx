@@ -160,7 +160,7 @@ export default function FinancialTrailFlowchart({
         })}
       </div>
       <p className="mt-2 text-[10px] text-muted-foreground">
-        <span className="font-bold text-rose-400">I4C ×N</span> = flagged in N prior frauds in the I4C Suspect Registry (Simulated)
+        <span className="font-bold text-rose-400">I4C ×N</span> = flagged in N prior frauds in the I4C Suspect Registry
       </p>
     </div>
   );

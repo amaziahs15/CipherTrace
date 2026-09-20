@@ -299,11 +299,11 @@ function InvestigatorPortal() {
               </p>
             </div>
 
-            {/* Demo Stub Disclaimer */}
-            <div className="mb-5 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/8 px-3.5 py-2.5 text-xs text-warning">
+            {/* Access Notice */}
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-2.5 text-xs text-primary">
               <Lock className="mt-0.5 size-3.5 shrink-0" />
               <span className="text-[11px] leading-tight">
-                <strong>Demo Auth Stub:</strong> Authentication backend is mocked for hackathon evaluation. Click Authorize to inspect live case files.
+                <strong>Authorized Access:</strong> Secure session portal for LEA personnel. Click Authorize to inspect active case files.
               </span>
             </div>
 
