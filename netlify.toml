@@ -3,6 +3,9 @@
   command = "npm run build"
   publish = "dist/client"
 
+[build.environment]
+  NPM_FLAGS = "--include=dev"
+
 [context.production.environment]
   NODE_ENV = "production"
 
