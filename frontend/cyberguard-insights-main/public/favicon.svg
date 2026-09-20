@@ -1,35 +1,69 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <!-- Shield Background & Border -->
-  <path d="M256 462 C200 422 108 340 108 200 L108 108 L256 70 L404 108 L404 200 C404 340 312 422 256 462 Z" 
-        fill="#142c68" 
-        stroke="#2f7df6" 
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050811" />
+      <stop offset="50%" stop-color="#0b1329" />
+      <stop offset="100%" stop-color="#060c1d" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="50%" stop-color="#0070f3" />
+      <stop offset="100%" stop-color="#003580" />
+    </linearGradient>
+    <linearGradient id="innerShieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#003580" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#001840" stop-opacity="0.8" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="strongGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Rounded Container Background -->
+  <rect width="512" height="512" rx="115" fill="url(#bgGrad)" />
+  <rect width="508" height="508" x="2" y="2" rx="113" stroke="#00f0ff" stroke-opacity="0.2" stroke-width="3" />
+
+  <!-- Background Ambient Cyber Glow -->
+  <circle cx="256" cy="245" r="140" fill="#0070f3" opacity="0.18" filter="url(#strongGlow)" />
+
+  <!-- Cyber Security Shield Outer -->
+  <path d="M256 70 L404 116 C404 260 330 380 256 438 C182 380 108 260 108 116 Z" 
+        fill="url(#innerShieldGrad)" 
+        stroke="url(#shieldGrad)" 
         stroke-width="12" 
-        stroke-linejoin="round" />
+        stroke-linejoin="round"
+        filter="url(#glow)" />
 
-  <!-- Radar Concentric Circles -->
-  <circle cx="256" cy="240" r="92" stroke="#2563eb" stroke-width="4.5" opacity="0.8" />
-  <circle cx="256" cy="240" r="64" stroke="#38bdf8" stroke-width="5" opacity="0.85" />
+  <!-- Shield Facet Geometry -->
+  <path d="M256 70 L256 438 M108 116 L256 220 L404 116" 
+        stroke="#00f0ff" 
+        stroke-width="3" 
+        stroke-opacity="0.35" />
 
-  <!-- Cross/Radial Connecting Lines -->
-  <line x1="194" y1="194" x2="318" y2="286" stroke="#2563eb" stroke-width="4.5" />
-  <line x1="202" y1="298" x2="310" y2="182" stroke="#2563eb" stroke-width="4.5" />
+  <!-- Radar Concentric Rings -->
+  <circle cx="256" cy="245" r="105" stroke="#0070f3" stroke-width="4" stroke-opacity="0.55" />
+  <circle cx="256" cy="245" r="75" stroke="#00f0ff" stroke-width="4.5" stroke-dasharray="8 6" stroke-opacity="0.85" />
+  <circle cx="256" cy="245" r="45" stroke="#38bdf8" stroke-width="4" stroke-opacity="0.7" />
+  <circle cx="256" cy="245" r="18" stroke="#00f0ff" stroke-width="3" stroke-opacity="0.9" />
 
-  <!-- Center Hub Node -->
-  <circle cx="256" cy="240" r="14" fill="#38bdf8" />
+  <!-- Radar Crosshairs -->
+  <line x1="126" y1="245" x2="386" y2="245" stroke="#00f0ff" stroke-width="3" stroke-opacity="0.5" />
+  <line x1="256" y1="120" x2="256" y2="370" stroke="#00f0ff" stroke-width="3" stroke-opacity="0.5" />
 
-  <!-- Radar Network Nodes -->
-  <!-- Top-Left Alert Node (Orange) -->
-  <circle cx="194" cy="194" r="13" fill="#f97316" stroke="#142c68" stroke-width="3" />
-  
-  <!-- Top-Right Node (Cyan) -->
-  <circle cx="318" cy="198" r="12" fill="#38bdf8" />
-  
-  <!-- Bottom-Left Node (Cyan) -->
-  <circle cx="204" cy="296" r="12" fill="#38bdf8" />
-  
-  <!-- Bottom-Right Node (Cyan) -->
-  <circle cx="314" cy="286" r="12" fill="#38bdf8" />
+  <!-- Scanner Angle Sweep Line -->
+  <line x1="256" y1="245" x2="340" y2="175" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />
 
-  <!-- Bottom Accent Horizontal Bar -->
-  <rect x="200" y="360" width="112" height="10" rx="5" fill="#2563eb" />
+  <!-- Center Active Intelligence Beacon (Orange) -->
+  <circle cx="256" cy="245" r="10" fill="#f97316" filter="url(#glow)" />
+  <circle cx="256" cy="245" r="4" fill="#ffffff" />
+
+  <!-- Perimeter Sensor Ping Nodes -->
+  <circle cx="340" cy="175" r="7" fill="#00f0ff" filter="url(#glow)" />
+  <circle cx="180" cy="290" r="5" fill="#38bdf8" opacity="0.8" />
+  <circle cx="320" cy="300" r="5" fill="#38bdf8" opacity="0.8" />
 </svg>

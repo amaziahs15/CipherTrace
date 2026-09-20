@@ -34,7 +34,6 @@ import { useI18n, formatActionText, formatWindowText, formatScreeningBadge } fro
 import ExplainPredictionAccordion from "@/components/ExplainPredictionAccordion";
 import FundRecoveryEstimatorCard from "@/components/FundRecoveryEstimatorCard";
 import { ClientOnly } from "@tanstack/react-router";
-import ComplaintMapPreview from "@/components/ComplaintMapPreview";
 import LinkAnalysisGraph from "@/components/LinkAnalysisGraph";
 import {
   crossReferenceComplaint,
@@ -48,6 +47,7 @@ import {
 } from "@/lib/collectiveThreat";
 
 const HotspotMap = lazy(() => import("@/components/HotspotMap"));
+const ComplaintMapPreview = lazy(() => import("@/components/ComplaintMapPreview"));
 
 export const Route = createFileRoute("/complaint")({
   head: () => ({
@@ -579,18 +579,22 @@ function ComplaintPage() {
           </div>
 
           {activeBottomTab === "map" ? (
-            <ComplaintMapPreview
-              victimLat={form.victim_lat}
-              victimLon={form.victim_lon}
-              prediction={prediction}
-              onSelectLocation={(lat, lon) => {
-                setForm((prev) => ({
-                  ...prev,
-                  victim_lat: String(lat),
-                  victim_lon: String(lon),
-                }));
-              }}
-            />
+            <ClientOnly fallback={<div className="h-[460px] bg-card/40 rounded-xl border border-border/50 animate-pulse flex items-center justify-center text-xs text-muted-foreground font-mono">Initializing GPS Geocoding Engine...</div>}>
+              <Suspense fallback={<div className="h-[460px] bg-card/40 rounded-xl border border-border/50 animate-pulse flex items-center justify-center text-xs text-muted-foreground font-mono">Loading Tactical Incident Map...</div>}>
+                <ComplaintMapPreview
+                  victimLat={form.victim_lat}
+                  victimLon={form.victim_lon}
+                  prediction={prediction}
+                  onSelectLocation={(lat, lon) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      victim_lat: String(lat),
+                      victim_lon: String(lon),
+                    }));
+                  }}
+                />
+              </Suspense>
+            </ClientOnly>
           ) : (
             <LinkAnalysisGraph
               activeHighlightId={submittedComplaintId || undefined}

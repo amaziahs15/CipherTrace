@@ -1,13 +1,13 @@
 // ─── Client-Side Evidence Report PDF Generator ───────────────────────────────
 // Generates official, tamper-evident law enforcement case dockets using jsPDF.
 
-import { jsPDF } from "jspdf";
 import { type HighRiskComplaint } from "@/routes/investigator";
 
-export function generateEvidenceReportPDF(
+export async function generateEvidenceReportPDF(
   complaint: HighRiskComplaint,
   attachedEvidence?: Array<{ name: string; type: string; previewUrl?: string }>,
 ) {
+  const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
