@@ -1,5 +1,5 @@
-// Use local backend when running locally, Render in production
-const API_BASE = "http://127.0.0.1:5000";
+// Use configurable backend URL in production, falling back to localhost for local development
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:5000";
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
