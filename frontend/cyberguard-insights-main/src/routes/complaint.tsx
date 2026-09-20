@@ -1,5 +1,5 @@
 // ─── Route: /complaint (New Complaint Intake & Geo-Hotspot Prediction) ─────────
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import React, { useState, useCallback, lazy, Suspense } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
@@ -33,7 +33,6 @@ import { logActivity } from "@/lib/activityLog";
 import { useI18n, formatActionText, formatWindowText, formatScreeningBadge } from "@/lib/i18n";
 import ExplainPredictionAccordion from "@/components/ExplainPredictionAccordion";
 import FundRecoveryEstimatorCard from "@/components/FundRecoveryEstimatorCard";
-import { ClientOnly } from "@tanstack/react-router";
 import LinkAnalysisGraph from "@/components/LinkAnalysisGraph";
 import {
   crossReferenceComplaint,
@@ -46,7 +45,6 @@ import {
   VICTIM_CENTRIC_TEXT,
 } from "@/lib/collectiveThreat";
 
-const HotspotMap = lazy(() => import("@/components/HotspotMap"));
 const ComplaintMapPreview = lazy(() => import("@/components/ComplaintMapPreview"));
 
 export const Route = createFileRoute("/complaint")({
@@ -579,8 +577,8 @@ function ComplaintPage() {
           </div>
 
           {activeBottomTab === "map" ? (
-            <ClientOnly fallback={<div className="h-[460px] bg-card/40 rounded-xl border border-border/50 animate-pulse flex items-center justify-center text-xs text-muted-foreground font-mono">Initializing GPS Geocoding Engine...</div>}>
-              <Suspense fallback={<div className="h-[460px] bg-card/40 rounded-xl border border-border/50 animate-pulse flex items-center justify-center text-xs text-muted-foreground font-mono">Loading Tactical Incident Map...</div>}>
+            <ClientOnly fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading map…</div>}>
+              <Suspense fallback={<div className="grid h-full place-items-center text-sm text-muted-foreground">Loading map…</div>}>
                 <ComplaintMapPreview
                   victimLat={form.victim_lat}
                   victimLon={form.victim_lon}
