@@ -153,9 +153,6 @@ function LandingPage() {
               <span className="font-mono text-sm font-black tracking-widest text-foreground uppercase">
                 {t.appName || "CipherTrace"}
               </span>
-              <span className="rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-cyan-800 dark:text-primary border border-cyan-500/40 uppercase">
-                {t.sihCommandVersion || "SIH Command v2.1"}
-              </span>
             </div>
             <p className="text-[11px] text-muted-foreground font-medium">
               {t.appSub || "Cybercrime Cash Withdrawal Intelligence"}
